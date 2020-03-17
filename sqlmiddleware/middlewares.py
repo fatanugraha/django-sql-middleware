@@ -48,9 +48,9 @@ class TracebackLogger:
         return result
 
 
-def get_explain_analyze(sql):
+def get_explain(sql):
     with connection.cursor() as cursor:
-        cursor.execute(f"EXPLAIN ANALYZE {sql}")
+        cursor.execute(f"EXPLAIN {sql}")
         return '\n'.join(r[0] for r in cursor.fetchall())
 
 
@@ -78,7 +78,7 @@ def LogSQLMiddleware(get_response):
 
         for tb, q in zip(logger.tracebacks, queries):
             q['traceback'] = tb
-            explain = get_explain_analyze(q['sql'])
+            explain = get_explain(q['sql'])
 
             result = explain_cost_r.search(explain.split('\n')[0])
             q['explain'] = explain
