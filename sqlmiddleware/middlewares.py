@@ -10,6 +10,8 @@ import sys
 import json
 from datetime import datetime
 from uuid import UUID
+from django.conf import settings
+import warnings
 
 from django.conf import settings
 from django.db import connection
@@ -56,7 +58,17 @@ explain_cost_r = re.compile("\(cost=(?P<cost>[^ ]+) rows=(?P<rows>\d+) width=(?P
 
 
 def LogSQLMiddleware(get_response):
+    def should_capture(request):
+        if 'sqlite' in settings.DATABASES['default']['ENGINE']:
+            warnings.warn("Does not support sqlite yet")
+            return False
+
+        return True
+
     def middleware(request):
+        if not should_capture(request):
+            return get_response(request)
+
         logger = TracebackLogger()
 
         with connection.execute_wrapper(logger):

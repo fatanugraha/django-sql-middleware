@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="django-sql-middleware",  # Replace with your own username
-    version="0.0.4",
+    version="0.0.5",
     author="Fata Nugraha",
     author_email="fatanugraha@outlook.com",
     description="Simple SQL Middleware for Django",

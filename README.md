@@ -3,7 +3,9 @@
 A simple middleware aimed to capture all queries in a request and provide basic SQL profiling such
 as execution time, execution plan, and query traceback.
 
-This package is only intended to run in development mode.
+This package is only intended to run in development mode for non-sqlite database.
+
+Currently, this package only tested in projects that uses psycopg2 (postgres) as default database engine.
 
 ## How To Install
 
