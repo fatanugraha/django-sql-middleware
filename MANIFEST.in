@@ -1,0 +1,7 @@
+
+include README.md
+include LICENSE.md
+recursive-include sqlmiddleware/static *.js *.css
+recursive-include sqlmiddleware/templates *.html
+global-exclude __pycache__
+global-exclude *.py[co]

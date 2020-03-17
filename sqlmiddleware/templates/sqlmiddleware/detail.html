@@ -1,0 +1,147 @@
+{% extends "sqlmiddleware/layout.html" %} {% block content %}
+<h1 class="mt-3 mb-3 text-light">Django SQLMiddleware</h1>
+<h5 class="mt-3 mb-3 text-light">{{data.method}} {{data.endpoint}}</h5>
+<input type="hidden" value="{{data.paths}}" id="paths" />
+{% for query in data.queries %}
+<div class="query mt-4">
+  <div class="top-bar query-detail-bar">
+    <div class="counter d-flex flex-row justify-content-center align-items-center">
+      {{ forloop.counter }}
+    </div>
+    <div class="section">
+      duration: {{query.time|floatformat:5}}s
+    </div>
+    <div class="section">cost: {{query.explain_cost}}</div>
+    <div class="section">rows: {{query.explain_rows}}</div>
+    <div class="section">width: {{query.explain_width}}</div>
+    <div></div>
+    <button id="toggle-{{forloop.counter}}" onclick="toggle({{forloop.counter}})">Hide</button>
+    <button
+      type="button"
+      data-toggle="modal"
+      data-target="#modal"
+      onclick="showExplain({{forloop.counter}})"
+    >
+      Explain
+    </button>
+    <button
+      type="button"
+      data-toggle="modal"
+      data-target="#traceback-modal"
+      onclick="showTraceback({{forloop.counter}})"
+    >
+      Traceback
+    </button>
+  </div>
+  <input type="hidden" value="{{query.sql}}" id="sql-raw-{{forloop.counter}}" />
+  <input type="hidden" value="{{query.traceback}}" id="traceback-{{forloop.counter}}" />
+  <input type="hidden" value="{{query.explain}}" id="explain-{{forloop.counter}}" />
+  <pre><code class="sql" id="sql-{{forloop.counter}}">formatting...</code></pre>
+  <div class="modal fade" id="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="top-bar modal-bar">
+          <div
+            class="counter d-flex flex-row justify-content-center align-items-center"
+            id="modal-number"
+          >
+            #
+          </div>
+          <div class="section" id="modal-title">Title</div>
+          <button type="button" data-dismiss="modal" aria-label="Close">
+            Close
+          </button>
+        </div>
+        <div class="modal-body">
+          <pre><code class="plaintext" id="modal-code">loading...</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="traceback-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="top-bar modal-traceback-bar">
+          <div
+            class="counter d-flex flex-row justify-content-center align-items-center"
+            id="traceback-number"
+          >
+            #
+          </div>
+          <div class="ml-2 section" id="traceback-title">Traceback</div>
+          <button type="button" id="traceback-mode" onclick="showTraceback({{forloop.counter}})">
+            Mine Only
+          </button>
+
+          <button type="button" data-dismiss="modal" aria-label="Close">
+            Close
+          </button>
+        </div>
+        <div class="modal-body">
+          <pre><code class="plaintext" id="traceback-content">loading...</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endblock %} {% block js %}
+
+<script>
+  function format(id) {
+    let input = document.getElementById(`sql-raw-${id}`);
+    let output = document.getElementById(`sql-${id}`);
+    output.innerHTML = window.sqlFormatter.format(input.value, {});
+    hljs.highlightBlock(output);
+  }
+
+  function showTraceback(id) {
+    const mode = $("#traceback-mode").html().trim() === "Full" ? 'full' : 'mine';
+
+    $("#traceback-number").html(id);
+
+    let target = $("#traceback-content");
+    let paths = JSON.parse($("#paths").val());
+
+    let raw =  $(`#traceback-${id}`).val().split('\n');
+    const result = [];
+    for (let i = 0; i < raw.length; i += 2) {
+      let myCode = true;
+      for (const path of paths) {
+        if (raw[i].indexOf(path) >= 0) {
+          myCode = false;
+          break;
+        }
+      }
+
+      if (myCode || mode == 'full') {
+        result.push(raw[i]);
+        result.push(raw[i+1]);
+      }
+    }
+
+    $("#traceback-mode").html(mode === "full" ? "Mine Only" : "Full")
+    target.html(result.join('\n'));
+  }
+
+  function showExplain(id) {
+    let target = $("#modal-code");
+    $("#modal-number").html(id);
+    $("#modal-title").html("Explain");
+    target.html($(`#explain-${id}`).val());
+  }
+
+  function toggle(id) {
+    if ($(`#toggle-${id}`).html() === "Hide") {
+      $(`#sql-${id}`).css("display", "none");
+      $(`#toggle-${id}`).html("Show")
+    } else {
+      $(`#toggle-${id}`).html("Hide")
+      $(`#sql-${id}`).css("display", "block");
+    }
+  }
+
+  for (let i = 1; i <= {{data.queries|length}}; i++) {
+    format(i);
+  }
+</script>
+{% endblock %}

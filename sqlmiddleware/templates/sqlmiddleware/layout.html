@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <link rel="stylesheet" href="{% static 'sqlmiddleware/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'sqlmiddleware/css/monokai-sublime.css' %}" />
+    <link rel="stylesheet" href="{% static 'sqlmiddleware/css/theme.css' %}" />
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <div class="container-fluid p-3">
+      {% block content %} {% endblock %}
+    </div>
+    <script src="{% static 'sqlmiddleware/js/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'sqlmiddleware/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'sqlmiddleware/js/highlight.pack.js' %}"></script>
+    <script src="{% static 'sqlmiddleware/js/sql-formatter.min.js' %}"></script>
+    <script>
+      hljs.initHighlightingOnLoad();
+      function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          var cookies = document.cookie.split(";");
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      var csrftoken = getCookie("csrftoken");
+    </script>
+
+    {% block js %} {% endblock %}
+  </body>
+</html>

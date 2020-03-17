@@ -1,0 +1,53 @@
+{% extends "sqlmiddleware/layout.html" %} {% block content %} {% csrf_token %}
+<div>
+  <h1 class="mt-3 mb-3 text-light">Django SQLMiddleware</h1>
+  <div class="two-column mb-3">
+    <p class="text-light mb-0">Captured Requests:</p>
+  </div>
+  {% for id, item in store.items %}
+  <div class="query" id="request-{{forloop.counter}}">
+    <div class="top-bar query-list-bar">
+      <div class="counter d-flex flex-row justify-content-center align-items-center">
+        {{forloop.counter}}
+      </div>
+      <div class="section">
+        {{item.created_at}}
+      </div>
+      <div class="section">
+        time: {{item.total_time|floatformat:5}}s
+      </div>
+      <div class="section">
+        count: {{item.queries|length}}
+      </div>
+      <div></div>
+      <button onclick="remove({{forloop.counter}})">
+        Delete
+      </button>
+      <input
+        type="hidden"
+        value="{% url 'sqlmiddleware:detail' id %}"
+        id="url-{{forloop.counter}}"
+      />
+      <a class="button" href="{% url 'sqlmiddleware:detail' id %}">
+        Detail
+      </a>
+    </div>
+    <pre><code>{{item.method}} {{item.endpoint}}</code></pre>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %} {% block js %}
+<script>
+  function remove(id) {
+    let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+    fetch($(`#url-${id}`).val(), {
+      method: "DELETE",
+      headers: {
+        "X-CSRFToken": csrftoken
+      }
+    }).then(response => {
+      $(`#request-${id}`).remove();
+    });
+  }
+</script>
+{% endblock %}
