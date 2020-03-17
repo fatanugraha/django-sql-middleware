@@ -69,8 +69,8 @@
             #
           </div>
           <div class="ml-2 section" id="traceback-title">Traceback</div>
-          <button type="button" id="traceback-mode" onclick="showTraceback({{forloop.counter}})">
-            Mine Only
+          <button type="button" id="traceback-mode" onclick="toggleTraceback({{forloop.counter}})">
+            Full
           </button>
 
           <button type="button" data-dismiss="modal" aria-label="Close">
@@ -94,8 +94,8 @@
     hljs.highlightBlock(output);
   }
 
-  function showTraceback(id) {
-    const mode = $("#traceback-mode").html().trim() === "Full" ? 'full' : 'mine';
+  function showTraceback(id, show_mode) {
+    const mode = show_mode ? show_mode : $("#traceback-mode").html().trim() === "Full" ? 'mine' : 'full';
 
     $("#traceback-number").html(id);
 
@@ -121,6 +121,11 @@
 
     $("#traceback-mode").html(mode === "full" ? "Mine Only" : "Full")
     target.html(result.join('\n'));
+  }
+
+  function toggleTraceback(id) {
+    const mode =  $("#traceback-mode").html().trim() === "Full" ? 'full' : 'mine';
+    showTraceback(id, mode);
   }
 
   function showExplain(id) {
