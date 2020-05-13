@@ -78,6 +78,14 @@ def LogSQLMiddleware(get_response):
 
         for tb, q in zip(logger.tracebacks, queries):
             q['traceback'] = tb
+
+            q['explain'] = q['sql']
+            q['explain_cost'] = "0"
+            q['explain_rows'] = "0"
+            q['explain_width'] = "0"
+            if q['sql'].find("SAVEPOINT") != -1:
+                continue
+
             explain = get_explain(q['sql'])
 
             result = explain_cost_r.search(explain.split('\n')[0])
